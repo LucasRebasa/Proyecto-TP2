@@ -1,56 +1,94 @@
- const Turno = require('../Turno.js')
- const Factory = require('../Factory.js');
- //const RepositoryTurnos = require('./Repositories/RepositoryTurnos.js')
- //const RepositoryMedico = require('./RepositoryMedico.js')
- //const RepositoryPaciente = require('./Repositories/RepositoryPaciente.js')
- //const Medico = require('./Medico.js')
- //const Paciente = require('./Paciente.js')
- module.exports = class GestorTurnos{
+const Turno = require("../Turno.js");
+const Factory = require("../Factory.js");
 
-    constructor(repositoryTurnos, repositoryMedico, repositoryPaciente){
-        this.factory = new Factory();
-        this.repositoryTurnos = repositoryTurnos;
-        this.repositoryMedico = repositoryMedico;
-        this.repositoryPaciente = repositoryPaciente;
+module.exports = class GestorTurnos {
+  constructor(repositoryTurnos, repositoryMedico, repositoryPaciente) {
+    this.factory = new Factory();
+    this.repositoryTurnos = repositoryTurnos;
+    this.repositoryMedico = repositoryMedico;
+    this.repositoryPaciente = repositoryPaciente;
+  }
+
+  async agregarTurno(turno) {
+    if (
+      !turno.fecha ||
+      !turno.hora ||
+      !turno.especialidad ||
+      !turno.medico ||
+      !turno.paciente ||
+      !turno.sede ||
+      (typeof turno.medico === "string" && turno.medico.length < 24) ||
+      (typeof turno.paciente === "string" && turno.paciente.length < 24)
+    ) {
+      console.log("Datos ingresados incorrectos");
+      return false;
     }
-
-    agregarTurno(fecha,especialidad,medico,paciente,sede){
-        return this.repositoryTurnos.agregarTurno();
+    let fecha = new Date(turno.fecha);
+    console.log(fecha);
+    if (fecha.getTime() < Date.now()) {
+      console.log("Fecha ingresada incorrecta");
+      return false;
     }
-        
-        
-    cancelarTurno(id){
-        let fechaActual = new Date();
-        let turnoActual = this.repositoryTurnos.findById(id);
-        if( fechaActual.getTime() - turnoActual.fecha.getTime() >= 172800000){
-            return this.repositoryTurnos.deleteById(id);
-        }
+    let existen =
+      (await this.repositoryMedico.existsById(turno.medico)) &&
+      (await this.repositoryPaciente.existsById(turno.paciente));
+    if (!existen) {
+      console.log("El medico o el paciente no existen");
+      return false;
     }
+    this.repositoryTurnos.agregarTurno(turno);
+    return true;
+  }
 
-    modificarTurno(turno, fechaNueva){
-        let fechaTurno = this.turno.fecha;
-        if(fechaNueva.getTime() - fechaTurno.getTime() >= 172800000 ){
-            this.repositoryTurnos.update(turno, fechaNueva);
-            turno.paciente.posponerTurno(fechaNueva);
-            turno.medico.posponerTurno(fechaNueva);
-        }
+  async cancelarTurno(id) {
+    let turnoActual = await this.repositoryTurnos.findById(id);
+    let fechaActual = new Date();
+    fechaActual.setHours(0, 0, 0, 0);
+    let eliminados;
+    console.log(turnoActual);
+    if (!turnoActual) {
+      return false;
     }
-
-    buscarTurnoPorPaciente(paciente){
-        return this.repositoryTurnos.findByPaciente(paciente);
+    console.log(new Date(turnoActual.fecha).getTime() - fechaActual.getTime());
+    if (
+      new Date(turnoActual.fecha).getTime() - fechaActual.getTime() >=
+      172800000
+    ) {
+      eliminados = await this.repositoryTurnos.deleteById(id);
     }
+    return eliminados?.deletedCount > 0;
+  }
 
-    buscarTurnoPorMedico(medico){
-        return this.repositoryTurnos.findByMedico(medico);
+  async modificarTurno(id, fechaNueva, horaNueva) {
+    let turno = await this.repositoryTurnos.findById(id);
+    let fechaActual = new Date();
+    fechaActual.setHours(0, 0, 0, 0);
+    if (!turno || !fechaNueva || !horaNueva) {
+      console.log("No existe el turno");
+      return false;
     }
-
-    buscarTurnoPorId(id){
-        return this.repositoryTurnos.findById(id);
+    let actualizado;
+    if (
+      new Date(turno.fecha).getTime() - fechaActual.getTime() >= 172800000 &&
+      new Date(fechaNueva).getTime() - fechaActual.getTime() >= 172800000
+    ) {
+      console.log("actualizado");
+      turno.fecha = fechaNueva;
+      turno.hora = horaNueva;
+      actualizado = await this.repositoryTurnos.update(id, turno);
     }
+    return actualizado.modifiedCount > 0;
+  }
 
-    
-    
- }
+  buscarTurnoPorPaciente(paciente) {
+    return this.repositoryTurnos.findByPaciente(paciente);
+  }
 
+  buscarTurnoPorMedico(medico) {
+    return this.repositoryTurnos.findByMedico(medico);
+  }
 
-
+  buscarTurnoPorId(id) {
+    return this.repositoryTurnos.findById(id);
+  }
+};

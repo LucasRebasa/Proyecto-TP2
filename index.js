@@ -1,31 +1,31 @@
-const RepositoryMedico = require('./Repositories/RepositoryMedico.js')
-const MedicoService = require('./Services/MedicoService.js')
-const GestorTurnos = require('./Services/GestorTurnos.js');
-const RepositoryTurnos = require('./Repositories/RepositoryTurnos.js')
-const RepositoryPaciente = require('./Repositories/RepositoryPaciente.js')
-const RepositoryEstudio = require('./Repositories/RepositoryEstudio.js')
-const express = require('express')
-const bodyParser = require('body-parser');
-const app = express()
-const port = 3000
+const RepositoryMedico = require("./Repositories/RepositoryMedico.js");
+const MedicoService = require("./Services/MedicoService.js");
+const GestorTurnos = require("./Services/GestorTurnos.js");
+const RepositoryTurnos = require("./Repositories/RepositoryTurnos.js");
+const RepositoryPaciente = require("./Repositories/RepositoryPaciente.js");
+const RepositoryEstudio = require("./Repositories/RepositoryEstudio.js");
+const express = require("express");
+const bodyParser = require("body-parser");
+const app = express();
+const port = 3000;
 
-const medicoService = new MedicoService
-const repoMedico = new RepositoryMedico
-const repoTurnos = new RepositoryTurnos
-const repoPaciente = new RepositoryPaciente
-const repoEstudio = new RepositoryEstudio
+const medicoService = new MedicoService();
+const repoMedico = new RepositoryMedico();
+const repoTurnos = new RepositoryTurnos();
+const repoPaciente = new RepositoryPaciente();
+const repoEstudio = new RepositoryEstudio();
 
-const gestorTurnos = new GestorTurnos(repoMedico, repoTurnos, repoPaciente);
+const gestorTurnos = new GestorTurnos(repoTurnos, repoMedico, repoPaciente);
 
 app.use(bodyParser.json());
 
-app.get('/', function (request, response) {
-  console.log(`Recibimos GET`)
-  response.send('Bienvenidos a Cuidapp. Les vengo a proponer un sueño.')
-})
+app.get("/", function (request, response) {
+  console.log(`Recibimos GET`);
+  response.send("Bienvenidos a Cuidapp. Les vengo a proponer un sueño.");
+});
 
 //MEDICOS//
-app.post('/medico', async (request, response) => {
+app.post("/medico", async (request, response) => {
   const { body } = request;
 
   const data = await medicoService.crearMedico(body);
@@ -35,96 +35,128 @@ app.post('/medico', async (request, response) => {
   } else {
     response.status(200).json("Medico creado correctamente").send();
   }
-})
+});
 
-app.get('/medico', async (request, response) => {
+app.get("/medico", async (request, response) => {
   //const list = await repoMedico.findAll()
-  const list = await medicoService.buscarTodos()
+  const list = await medicoService.buscarTodos();
   if (list.length === 0) {
     response.sendStatus(400);
   } else {
     response.status(200).json(list);
   }
   console.log(list);
-})
+});
 
-app.get('/medico/:id', async (request, response) => {
+app.get("/medico/:id", async (request, response) => {
   const id = request.params.id;
 
   //const data = await repoMedico.findById(id);
-  const data = await medicoService.buscarPorId(id)
+  const data = await medicoService.buscarPorId(id);
   if (!data) {
     response.sendStatus(404);
   } else {
     response.json(data);
   }
-})
+});
 
-app.delete('/medico/:id', async (request, response) => {
+app.delete("/medico/:id", async (request, response) => {
   const id = request.params.id;
 
   //const data = await repoMedico.deleteById(id);
-  const deleted = await medicoService.eliminarPorId(id)
+  const deleted = await medicoService.eliminarPorId(id);
   if (deleted) {
     response.sendStatus(200);
   } else {
     response.sendStatus(400);
   }
+});
 
-})
-
-app.put('/medico/:id', (request, response) => {
+app.put("/medico/:id", (request, response) => {
   const { body, params } = request;
 
   repoMedico.update(params.id, body.nuevoMedico);
-
-})
+});
 
 //ESTUDIO//
 
-app.get('/estudio', async (request, response) => {
-  const list = await repoEstudio.findAll()
+app.get("/estudio", async (request, response) => {
+  const list = await repoEstudio.findAll();
   console.log(list);
-  response.json(list)
-})
+  response.json(list);
+});
 
-app.post('/estudio', (request, response) => {
+app.post("/estudio", (request, response) => {
   const { body } = request;
-  console.log(body)
+  console.log(body);
   const data = repoEstudio.agregarTurno(body);
   response.json(data);
-})
+});
 
 //PACIENTES//
 
-app.get('/paciente', async (request, response) => {
-  const list = await repoPaciente.findAll()
+app.get("/paciente", async (request, response) => {
+  const list = await repoPaciente.findAll();
   console.log(list);
-  response.json(list)
-})
+  response.json(list);
+});
 
-app.post('/paciente', (request, response) => {
+app.post("/paciente", (request, response) => {
   const { body } = request;
-  console.log(body)
+  console.log(body);
   if (!body.nombre) {
     response.status(400);
-    response.send()
+    response.send();
   } else {
     const data = repoPaciente.agregarPaciente(body);
     response.status(200);
     response.json(data);
   }
-})
+});
 
-app.put('/paciente', (request, response) => {
+app.put("/paciente", (request, response) => {
   const { body } = request;
   const idAnterior = body.id;
   const fechaNueva = body.fechaNueva;
   const data = repoPaciente.update(idAnterior, fechaNueva);
+});
+
+app.delete("/paciente", () => {});
+
+//TURNOS
+app.post("/turno", async (request, response) => {
+  const { body } = request;
+  let data = await gestorTurnos.agregarTurno(body);
+  if (!data) {
+    response.status(400).send("Los datos del turno son incorrectos");
+  } else {
+    response.sendStatus(200);
+  }
+});
+
+app.put("/turno/:id", async (request, response) => {
+  const id = request.params.id;
+  const {fechaNueva, horaNueva}  = request.body;
+  let actualizado = await gestorTurnos.modificarTurno(id, fechaNueva, horaNueva);
+  if(actualizado){
+    response.sendStatus(200);
+  }else{
+    response.sendStatus(400);
+  }
 })
 
-app.delete('/paciente', () => { })
+app.delete("/turno/:id", async (request, response) => {
+  const id = request.params.id;
+   
+  let deleted = await gestorTurnos.cancelarTurno(id);
+  console.log(deleted);
+  if(deleted){
+    response.sendStatus(200);
+  }else{
+    response.status(404).send("No se pudo cancelar el turno");
+  }
+})
 
 app.listen(port, () => {
-  console.log(`Nuestro server está funcionando bien en el port ${port}`)
-})
+  console.log(`Nuestro server está funcionando bien en el port ${port}`);
+});

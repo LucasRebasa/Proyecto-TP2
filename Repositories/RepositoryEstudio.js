@@ -4,6 +4,16 @@ module.exports = class RepositoryEstudio {
         this.dao = dao;
       }
     
+      async existsById(id){
+        try{
+          await dao.connect()
+          let collection = await dao.db("TP2").collection("Estudio");
+          return await collection.findOne({_id: new ObjectId(id)});
+        }finally{
+          await dao.close();
+        }
+      }
+
       async agregarEstudio(estudio) {
         try{
           await dao.connect()

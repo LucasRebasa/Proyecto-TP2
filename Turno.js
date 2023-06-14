@@ -1,17 +1,17 @@
-module.exports = class Turno{
+module.exports = class Turno {
 
-    constructor(fecha,especialidad,Medico,Paciente,Sede){
-        this.id = this.id
-        this.fecha = fecha
-        this.especialidad = especialidad
-        this.Medico = Medico
-        this.Paciente = Paciente
-        this.Sede = Sede
+    constructor(fecha, hora, especialidad, medico, paciente, sede) {
+        this.fecha = fecha;
+        this.especialidad = especialidad;
+        this.Medico = medico;
+        this.Paciente = paciente;
+        this.Sede = sede;
+        this.hora = hora;
     }
 
-    vigenciaDeTurno(){
-       const fechaActual = new Date()
-      return this.fecha > fechaActual
+    vigenciaDeTurno() {
+        const fechaActual = new Date()
+        return this.fecha > fechaActual
     }
 
 
@@ -21,7 +21,7 @@ module.exports = class Turno{
     }
 
     posponer(nuevaFecha) {
-        if(nuevaFecha > this.fecha){
+        if (nuevaFecha > this.fecha) {
             this.fecha = nuevaFecha
             return true
         }
@@ -32,8 +32,8 @@ module.exports = class Turno{
     toString() {
         return `Turno ${this.id}: ${this.fecha} ${this.hora}, Paciente: ${this.paciente}, Médico: ${this.medico}`;
     }
-    
-    }
+
+}
 
 
 

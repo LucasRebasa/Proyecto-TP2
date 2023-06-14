@@ -28,7 +28,7 @@ module.exports = class MedicoService {
             return "No se ingreso un id"
         }
         const eliminados = repoMedico.deleteById(id);
-        return eliminados.acknowledged > 0;
+        return (await eliminados).deletedCount > 0;
     }
 
     async update(idMedico, nuevoMedico){

@@ -1,34 +1,87 @@
-const Factory = require("../Factory.js");
+const { ObjectId } = require("mongodb");
+const dao = require("../MongoDBDao/MongoDBDao.js");
 const Turno = require("../Turno.js");
 
 module.exports = class RepositoryTurnos {
-  constructor() {
-    this.turnos = [];
+  async existsById(id) {
+    try {
+      await dao.connect();
+      let collection = await dao.db("TP2").collection("Turno");
+      return await collection.findOne({ _id: new ObjectId(id) });
+    } finally {
+      await dao.close();
+    }
   }
 
-  agregarTurno(turno) {
-    this.turnos.push(turno);
+  async agregarTurno(turno) {
+    try {
+      await dao.connect();
+      let collection = await dao.db("TP2").collection("Turno");
+      return await collection.insertOne(
+        new Turno(
+          turno.fecha,
+          turno.hora,
+          turno.especialidad,
+          turno.medico,
+          turno.paciente,
+          turno.sede
+        )
+      );
+    } finally {
+      await dao.close();
+    }
   }
 
-  findById(id) {
-    return this.turnos.find((e) => e.id === id);
+  async findById(id) {
+    try {
+      await dao.connect();
+      let collection = await dao.db("TP2").collection("Turno");
+      return await collection.findOne({ _id: new ObjectId(id) });
+    } finally {
+      await dao.close();
+    }
   }
 
-  findByPaciente(paciente) {
-    return this.turnos.find((e) => e.paciente.id === paciente.id);
+  async findByPaciente(paciente) {
+    try {
+      await dao.connect();
+      let collection = await dao.db("TP2").collection("Turno");
+      return await collection.findOne({ paciente: new ObjectId(paciente) });
+    } finally {
+      await dao.close();
+    }
   }
 
-  findByMedico(medico) {
-    return this.turnos.find((e) => e.medico.id === medico.id);
+  async findByMedico(medico) {
+    try {
+      await dao.connect();
+      let collection = await dao.db("TP2").collection("Turno");
+      return await collection.findOne({ paciente: new ObjectId(medico) });
+    } finally {
+      await dao.close();
+    }
   }
 
-  update(turno, fechaNueva) {
-    turno.fecha = fechaNueva;
-    this.turnos = this.turnos.map((e) => (e.id === turno.id ? turno : e));
+  async update(id, turno) {
+    try {
+      await dao.connect();
+      let collection = dao.db("TP2").collection("Turno");
+      return await collection.replaceOne(
+        { _id: new ObjectId(id) },
+        turno
+      );
+    } finally {
+      await dao.close();
+    }
   }
 
-  deleteById(id){
-    this.turnos = this.turnos.filter(e => e.id !== id);
+  async deleteById(id) {
+    try {
+      await dao.connect();
+      let collection = await dao.db("TP2").collection("Turno");
+      return await collection.deleteOne({ _id: new ObjectId(id) });
+    } finally {
+      await dao.close();
+    }
   }
-  
 };
