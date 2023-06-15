@@ -3,9 +3,9 @@ module.exports = class Turno {
     constructor(fecha, hora, especialidad, medico, paciente, sede) {
         this.fecha = fecha;
         this.especialidad = especialidad;
-        this.Medico = medico;
-        this.Paciente = paciente;
-        this.Sede = sede;
+        this.medico = medico;
+        this.paciente = paciente;
+        this.sede = sede;
         this.hora = hora;
     }
 

@@ -6,10 +6,12 @@ const RepositoryPaciente = require("./Repositories/RepositoryPaciente.js");
 const RepositoryEstudio = require("./Repositories/RepositoryEstudio.js");
 const express = require("express");
 const bodyParser = require("body-parser");
+const PacienteService = require("./Services/PacienteService.js");
 const app = express();
 const port = 3000;
 
 const medicoService = new MedicoService();
+const pacienteService = new PacienteService();
 const repoMedico = new RepositoryMedico();
 const repoTurnos = new RepositoryTurnos();
 const repoPaciente = new RepositoryPaciente();
@@ -20,7 +22,7 @@ const gestorTurnos = new GestorTurnos(repoTurnos, repoMedico, repoPaciente);
 app.use(bodyParser.json());
 
 app.get("/", function (request, response) {
-  console.log(`Recibimos GET`);
+  
   response.send("Bienvenidos a Cuidapp. Les vengo a proponer un sueño.");
 });
 
@@ -33,28 +35,25 @@ app.post("/medico", async (request, response) => {
   if (!data) {
     response.sendStatus(400);
   } else {
-    response.status(200).json("Medico creado correctamente").send();
+    response.sendStatus(201);
   }
 });
 
 app.get("/medico", async (request, response) => {
-  //const list = await repoMedico.findAll()
   const list = await medicoService.buscarTodos();
-  if (list.length === 0) {
-    response.sendStatus(400);
+  if (list.error) {
+    response.status(404).send({error:list.error});
   } else {
     response.status(200).json(list);
   }
-  console.log(list);
 });
 
 app.get("/medico/:id", async (request, response) => {
   const id = request.params.id;
 
-  //const data = await repoMedico.findById(id);
   const data = await medicoService.buscarPorId(id);
-  if (!data) {
-    response.sendStatus(404);
+  if (data.error) {
+    response.status(404).send({error:data.error});
   } else {
     response.json(data);
   }
@@ -63,32 +62,34 @@ app.get("/medico/:id", async (request, response) => {
 app.delete("/medico/:id", async (request, response) => {
   const id = request.params.id;
 
-  //const data = await repoMedico.deleteById(id);
   const deleted = await medicoService.eliminarPorId(id);
-  if (deleted) {
-    response.sendStatus(200);
+  if (deleted.error) {
+    response.status(404).send({error:deleted.error});
   } else {
-    response.sendStatus(400);
+    response.sendStatus(200);
   }
 });
 
-app.put("/medico/:id", (request, response) => {
+app.put("/medico/:id", async (request, response) => {
   const { body, params } = request;
-
-  repoMedico.update(params.id, body.nuevoMedico);
+  let medicoActualizado = await medicoService.update(params.id, body);
+  if(!medicoActualizado || medicoActualizado.error){
+    response.status(400).send({error:medicoActualizado.error})
+  }else{
+    response.status(200).send()
+  }
+  
 });
 
 //ESTUDIO//
 
 app.get("/estudio", async (request, response) => {
   const list = await repoEstudio.findAll();
-  console.log(list);
   response.json(list);
 });
 
 app.post("/estudio", (request, response) => {
   const { body } = request;
-  console.log(body);
   const data = repoEstudio.agregarTurno(body);
   response.json(data);
 });
@@ -96,39 +97,85 @@ app.post("/estudio", (request, response) => {
 //PACIENTES//
 
 app.get("/paciente", async (request, response) => {
-  const list = await repoPaciente.findAll();
-  console.log(list);
-  response.json(list);
-});
-
-app.post("/paciente", (request, response) => {
-  const { body } = request;
-  console.log(body);
-  if (!body.nombre) {
-    response.status(400);
-    response.send();
-  } else {
-    const data = repoPaciente.agregarPaciente(body);
-    response.status(200);
-    response.json(data);
+  const list = await pacienteService.buscarTodos();
+  if(!list){
+    response.sendStatus(404);
+  }else{
+    response.status(200).json(list);
   }
 });
 
-app.put("/paciente", (request, response) => {
-  const { body } = request;
-  const idAnterior = body.id;
-  const fechaNueva = body.fechaNueva;
-  const data = repoPaciente.update(idAnterior, fechaNueva);
+app.get("/paciente/:id", async (request, response) => {
+  const id = request.params.id;
+  const pacienteABuscar = await pacienteService.buscarPorId(id);
+  if(pacienteABuscar.error){
+    response.status(404).send({error:pacienteABuscar.error});
+  }else{
+    response.status(200).json(pacienteABuscar);
+  }
 });
 
-app.delete("/paciente", () => {});
+app.post("/paciente", async (request, response) => {
+  const { body } = request;
+  const data = await pacienteService.crearPaciente(body);
+
+  if (data.error) {
+    response.status(400).send({error:data.error});
+  } else {
+    response.sendStatus(201);
+  }
+});
+
+app.put("/paciente/:id", async (request, response) => {
+  const { body, params } = request;
+
+  let actualizado = await pacienteService.update(params.id, body);
+  if(actualizado.error || !actualizado){
+    response.status(400).send({error:actualizado.error})
+  }else{
+    response.sendStatus(200);
+  }
+});
+
+app.delete("/paciente/:id", async (request, response) => {
+  const id = request.params.id;
+
+  const deleted = await pacienteService.eliminarPorId(id);
+  if (!deleted || deleted.error) {
+    response.status(400).send({error:deleted.error});
+  } else {
+    response.sendStatus(200);
+  }
+});
 
 //TURNOS
+app.get("/turno/paciente/:idPaciente", async (request,response) => {
+  const idPaciente = request.params.idPaciente;
+
+  const data = gestorTurnos.buscarTurnosPorPaciente(idPaciente);
+  if(!data){
+    response.status(404).send({error:"No existen turnos para ese paciente"});
+  }else{
+    response.status(200).json(data);
+  }
+})
+
+app.get("/turno/medico/:idMedico", async (request,response) => {
+  const idMedico = request.params.idMedico;
+
+  const data = gestorTurnos.buscarTurnosPorMedico(idMedico);
+  if(!data){
+    response.status(404).send({error:"No existen turnos para ese paciente"});
+  }else{
+    response.status(200).json(data);
+  }
+})
+
 app.post("/turno", async (request, response) => {
   const { body } = request;
   let data = await gestorTurnos.agregarTurno(body);
-  if (!data) {
-    response.status(400).send("Los datos del turno son incorrectos");
+  if (data.error) {
+    response.status(400).send({error:data.error});
   } else {
     response.sendStatus(200);
   }
@@ -138,10 +185,10 @@ app.put("/turno/:id", async (request, response) => {
   const id = request.params.id;
   const {fechaNueva, horaNueva}  = request.body;
   let actualizado = await gestorTurnos.modificarTurno(id, fechaNueva, horaNueva);
-  if(actualizado){
-    response.sendStatus(200);
+  if(actualizado.error){
+    response.status(400).send({error:actualizado.error});
   }else{
-    response.sendStatus(400);
+    response.sendStatus(200);
   }
 })
 
@@ -149,7 +196,7 @@ app.delete("/turno/:id", async (request, response) => {
   const id = request.params.id;
    
   let deleted = await gestorTurnos.cancelarTurno(id);
-  console.log(deleted);
+  
   if(deleted){
     response.sendStatus(200);
   }else{

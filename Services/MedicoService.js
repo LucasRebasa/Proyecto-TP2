@@ -20,19 +20,29 @@ module.exports = class MedicoService {
     }
 
     async buscarPorId(id) {
-        return await repoMedico.findById(id)
+        let buscado = await repoMedico.findById(id)
+        if(!buscado){
+            return {error: "El medico buscado no existe"}
+        }
+        return buscado
     }
 
     async eliminarPorId(id) {
-        if (!id) {
-            return "No se ingreso un id"
+        const eliminados = await repoMedico.deleteById(id);
+        if (eliminados.deletedCount === 0) {
+            return {error:"El medico ingresado no existe"};
         }
-        const eliminados = repoMedico.deleteById(id);
-        return (await eliminados).deletedCount > 0;
+        return true;
     }
 
     async update(idMedico, nuevoMedico){
-        repoMedico.update(idMedico, nuevoMedico);
+        let medico = await repoMedico.existsById(idMedico);
+        if(!medico || !nuevoMedico.nombre || !nuevoMedico.apellido || !nuevoMedico.dni || !nuevoMedico.email){
+            return {error: "Los datos ingresados fueron incorrectos"};
+        }
+        let actualizado = await repoMedico.update(idMedico, nuevoMedico);
+       
+        return  actualizado.modifiedCount > 0;
     }
 
 

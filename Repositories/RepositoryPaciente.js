@@ -3,7 +3,6 @@ const { ObjectId } = require("mongodb");
 
 module.exports = class RepositoryPaciente {
   constructor() {
-    this.pacientes = [];
   }
 
   async existsById(id) {
@@ -19,7 +18,7 @@ module.exports = class RepositoryPaciente {
   async agregarPaciente(paciente) {
     try {
       await dao.connect();
-      let collection = await client.db("TP2").collection("Paciente");
+      let collection = await dao.db("TP2").collection("Paciente");
       return await collection.insertOne(paciente);
     } finally {
       await dao.close();
@@ -30,20 +29,19 @@ module.exports = class RepositoryPaciente {
     try {
       await dao.connect();
       let collection = await dao.db("TP2").collection("Paciente");
-      console.log(id);
+      
       return await collection.findOne({ _id: new ObjectId(id) });
     } finally {
       await dao.close();
     }
   }
 
-  async update(paciente, fechaNueva) {
-    paciente.fecha = fechaNueva;
+  async update(idPaciente,nuevoPaciente) {
     try {
       await dao.connect();
-      let collection = await client.db("TP2").collection("Paciente");
-      console.log(id);
-      return await collection.update({ _id: new ObjectId(id) }, paciente);
+      let collection = await dao.db("TP2").collection("Paciente");
+      
+      return await collection.replaceOne({ _id: new ObjectId(idPaciente) }, nuevoPaciente);
     } finally {
       await dao.close();
     }
@@ -52,8 +50,8 @@ module.exports = class RepositoryPaciente {
   async deleteById(id) {
     try {
       await dao.connect();
-      let collection = await client.db("TP2").collection("Paciente");
-      console.log(id);
+      let collection = await dao.db("TP2").collection("Paciente");
+      
       return await collection.deleteOne({ _id: new ObjectId(id) });
     } finally {
       await dao.close();
@@ -71,4 +69,5 @@ module.exports = class RepositoryPaciente {
       await dao.close();
     }
   }
+  
 };

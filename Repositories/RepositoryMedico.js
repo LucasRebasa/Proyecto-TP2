@@ -29,7 +29,6 @@ module.exports = class RepositoryMedico {
     try {
       await dao.connect();
       let collection = await dao.db("TP2").collection("Medico");
-      console.log(id);
       return await collection.findOne({ _id: new ObjectId(id) });
     } finally {
       await dao.close();
@@ -53,7 +52,6 @@ module.exports = class RepositoryMedico {
     try {
       await dao.connect();
       let collection = await dao.db("TP2").collection("Medico");
-      console.log(id);
       return await collection.deleteOne({ _id: new ObjectId(id) });
     } finally {
       await dao.close();
