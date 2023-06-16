@@ -6,7 +6,7 @@ const repoPaciente = new RepositoryPaciente()
 module.exports = class PacienteService {
 
     async crearPaciente(paciente){
-        if(!paciente.nombre || !paciente.apellido || !paciente.dni || !paciente.edad || !paciente.email){
+        if(!paciente.nombre || !paciente.apellido || !paciente.dni || !paciente.email){
             return {error:"Los datos ingresados son incorrectos"};
         }
         await repoPaciente.agregarPaciente(paciente)
@@ -49,5 +49,9 @@ module.exports = class PacienteService {
         return actualizado.modifiedCount > 0;
     }
 
+    async login(email, password){
+        let buscado = await repoPaciente.login(email, password)
+        return buscado;
+    }
     
 }

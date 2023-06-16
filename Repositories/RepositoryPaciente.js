@@ -70,4 +70,13 @@ module.exports = class RepositoryPaciente {
     }
   }
   
+  async login(email, password){
+    try {
+      await dao.connect();
+      let collection = await dao.db("TP2").collection("Paciente");
+      return await collection.findOne({ email: email, password:password });
+    } finally {
+      await dao.close();
+    }
+  }
 };

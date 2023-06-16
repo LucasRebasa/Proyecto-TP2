@@ -5,6 +5,7 @@ const RepositoryTurnos = require("./Repositories/RepositoryTurnos.js");
 const RepositoryPaciente = require("./Repositories/RepositoryPaciente.js");
 const RepositoryEstudio = require("./Repositories/RepositoryEstudio.js");
 const express = require("express");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const PacienteService = require("./Services/PacienteService.js");
 const app = express();
@@ -20,6 +21,7 @@ const repoEstudio = new RepositoryEstudio();
 const gestorTurnos = new GestorTurnos(repoTurnos, repoMedico, repoPaciente);
 
 app.use(bodyParser.json());
+app.use(cors());
 
 app.get("/", function (request, response) {
   
@@ -27,6 +29,19 @@ app.get("/", function (request, response) {
 });
 
 //MEDICOS//
+app.post("/medico/login", async (request, response) => {
+  const {email,password} = request.body;
+
+  const data = await medicoService.login(email, password);
+  console.log(data);
+  if(!data){
+    response.status(400).send()
+  }else{
+    response.status(200).json(data);
+  }
+
+})
+
 app.post("/medico", async (request, response) => {
   const { body } = request;
 
@@ -95,6 +110,20 @@ app.post("/estudio", (request, response) => {
 });
 
 //PACIENTES//
+
+//MEDICOS//
+app.post("/paciente/login", async (request, response) => {
+  const {email,password} = request.body;
+
+  const data = await pacienteService.login(email, password);
+  console.log(data);
+  if(!data){
+    response.status(400).send()
+  }else{
+    response.status(200).json(data);
+  }
+
+})
 
 app.get("/paciente", async (request, response) => {
   const list = await pacienteService.buscarTodos();

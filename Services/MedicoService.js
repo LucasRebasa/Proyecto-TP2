@@ -45,5 +45,8 @@ module.exports = class MedicoService {
         return  actualizado.modifiedCount > 0;
     }
 
-
+    async login(email, password){
+        let buscado = await repoMedico.login(email, password)
+        return buscado;
+    }
 }

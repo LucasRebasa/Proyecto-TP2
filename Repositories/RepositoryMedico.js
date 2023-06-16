@@ -68,4 +68,14 @@ module.exports = class RepositoryMedico {
       await dao.close();
     }
   }
+
+  async login(email, password){
+    try {
+      await dao.connect();
+      let collection = await dao.db("TP2").collection("Medico");
+      return await collection.findOne({ email: email, password:password });
+    } finally {
+      await dao.close();
+    }
+  }
 };
