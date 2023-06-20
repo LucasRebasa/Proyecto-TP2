@@ -1,13 +1,12 @@
 
 module.exports = class Paciente {
-  constructor(dni, nombre, apellido, edad, email) {
+  constructor(dni, nombre, apellido, edad, email,password) {
     this.dni = dni;
     this.nombre = nombre;
     this.apellido = apellido;
     this.edad = edad;
     this.email = email;
-    this.estudios = [];
-    this.turnosAsignados = [];
+    this.password = password
   }
 
   agregarTurno(turno) {

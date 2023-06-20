@@ -79,4 +79,5 @@ module.exports = class RepositoryPaciente {
       await dao.close();
     }
   }
+  
 };

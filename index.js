@@ -3,7 +3,6 @@ const MedicoService = require("./Services/MedicoService.js");
 const GestorTurnos = require("./Services/GestorTurnos.js");
 const RepositoryTurnos = require("./Repositories/RepositoryTurnos.js");
 const RepositoryPaciente = require("./Repositories/RepositoryPaciente.js");
-const RepositoryEstudio = require("./Repositories/RepositoryEstudio.js");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -11,12 +10,13 @@ const PacienteService = require("./Services/PacienteService.js");
 const app = express();
 const port = 3000;
 
+
 const medicoService = new MedicoService();
 const pacienteService = new PacienteService();
 const repoMedico = new RepositoryMedico();
 const repoTurnos = new RepositoryTurnos();
 const repoPaciente = new RepositoryPaciente();
-const repoEstudio = new RepositoryEstudio();
+
 
 const gestorTurnos = new GestorTurnos(repoTurnos, repoMedico, repoPaciente);
 
@@ -28,7 +28,7 @@ app.get("/", function (request, response) {
   response.send("Bienvenidos a Cuidapp. Les vengo a proponer un sueño.");
 });
 
-//MEDICOS//
+//-------------------MEDICOS-----------------------//
 app.post("/medico/login", async (request, response) => {
   const {email,password} = request.body;
 
@@ -44,7 +44,7 @@ app.post("/medico/login", async (request, response) => {
 
 app.post("/medico", async (request, response) => {
   const { body } = request;
-
+  console.log(body)
   const data = await medicoService.crearMedico(body);
 
   if (!data) {
@@ -96,22 +96,20 @@ app.put("/medico/:id", async (request, response) => {
   
 });
 
-//ESTUDIO//
+app.post("/medico/especialidad", async (request,response) => {
+  const { especialidad } = request.body;
+  const data = await medicoService.buscarEspecialidad(especialidad);
+  if(!data){
+    response.status(404).send();
+  }else{
+    response.status(200).json(data);
+   
+  }
+ 
+})
 
-app.get("/estudio", async (request, response) => {
-  const list = await repoEstudio.findAll();
-  response.json(list);
-});
+//-------------------PACIENTE-----------------------//
 
-app.post("/estudio", (request, response) => {
-  const { body } = request;
-  const data = repoEstudio.agregarTurno(body);
-  response.json(data);
-});
-
-//PACIENTES//
-
-//MEDICOS//
 app.post("/paciente/login", async (request, response) => {
   const {email,password} = request.body;
 
@@ -177,11 +175,11 @@ app.delete("/paciente/:id", async (request, response) => {
   }
 });
 
-//TURNOS
+//-------------------TURNO-----------------------//
 app.get("/turno/paciente/:idPaciente", async (request,response) => {
   const idPaciente = request.params.idPaciente;
 
-  const data = gestorTurnos.buscarTurnosPorPaciente(idPaciente);
+  const data = await gestorTurnos.buscarTurnosPorPaciente(idPaciente);
   if(!data){
     response.status(404).send({error:"No existen turnos para ese paciente"});
   }else{
@@ -189,16 +187,16 @@ app.get("/turno/paciente/:idPaciente", async (request,response) => {
   }
 })
 
-app.get("/turno/medico/:idMedico", async (request,response) => {
-  const idMedico = request.params.idMedico;
-
-  const data = gestorTurnos.buscarTurnosPorMedico(idMedico);
+app.get("/turno", async (request,response) => {
+ 
+  const data = await gestorTurnos.verTurnos();
   if(!data){
-    response.status(404).send({error:"No existen turnos para ese paciente"});
+    response.status(404).send();
   }else{
     response.status(200).json(data);
   }
 })
+
 
 app.post("/turno", async (request, response) => {
   const { body } = request;
@@ -233,6 +231,31 @@ app.delete("/turno/:id", async (request, response) => {
   }
 })
 
+app.get("/turno/medico/:idMedico", async (request,response) => {
+  const idMedico = request.params.idMedico;
+
+  const data = await gestorTurnos.buscarTurnosPorMedico(idMedico);
+  if(!data){
+    response.status(404).send({error:"No existen turnos para ese medico"});
+  }else{
+    response.status(200).json(data);
+  }
+})
+
+app.get("/turno/disponibilidad", async (request,response) => {
+  const {medico,fecha} = request.query;
+  console.log(medico)
+  console.log(fecha)
+  const data = await gestorTurnos.verDisponibilidadHoraria(medico,fecha);
+  if(!data){
+    response.status(404).send({error:"No hay turnos para la fecha seleccionada"});
+  }else{
+    response.status(200).json(data);
+  }
+})
+
 app.listen(port, () => {
   console.log(`Nuestro server está funcionando bien en el port ${port}`);
 });
+
+app.use(cors());
