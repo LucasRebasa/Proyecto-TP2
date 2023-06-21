@@ -226,10 +226,10 @@ app.delete("/turno/:id", async (request, response) => {
    
   let deleted = await gestorTurnos.cancelarTurno(id);
   
-  if(deleted){
-    response.sendStatus(200);
+  if(deleted.error){
+    response.status(404).send({error:deleted.error});
   }else{
-    response.status(404).send("No se pudo cancelar el turno");
+    response.sendStatus(200);
   }
 })
 

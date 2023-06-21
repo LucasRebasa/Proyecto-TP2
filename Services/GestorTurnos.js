@@ -58,6 +58,7 @@ module.exports = class GestorTurnos {
       new Date(turnoActual.fecha).getTime() - fechaActual.getTime() >=
       172800000
     ) {
+      console.log("Turno cancelado")
       let eliminados = await this.repositoryTurnos.deleteById(id);
       return eliminados.deletedCount > 0;
     }else{
