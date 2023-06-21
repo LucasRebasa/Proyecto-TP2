@@ -30,8 +30,6 @@ La aplicación de “una obra social” permitirá gestionar turnos, solicitando
 - La clase Medico tendra dni,nombre,apellido,email. A su vez, contara con un listado semanal de turnos (al estilo agenda). La idea de contar con dni y email tiene como un sentido netamente funcional, seran usados para futuros logins, asignacion de perfil, etc.
 ### GestorTurnos
 - El gestor de turnos se va encargar de crear, actualizar, eliminar y buscar los turnos que haya solicitado cada paciente o que se haya asignado a un medico. Permite la busqueda por paciente o medico.
-### Sede
-- La clase sede va a representar el lugar fisico donde se puede atender o hacerse un estudio el paciente.
 ### Turno
 - Una de las clases mas importantes. Sera la clase que servira de vinculo entre Los medicos y los pacientes y contendra varias funcionalidades que responden a las reglas de negocio(creacion, pos).
 
