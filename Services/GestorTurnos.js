@@ -9,13 +9,13 @@ module.exports = class GestorTurnos {
  
   async agregarTurno(turno) {
     //Valida que el turno tenga todos los campos necesarios
+    console.log(turno)
     if (
       !turno.fecha ||
       !turno.hora ||
       !turno.especialidad ||
       !turno.medico ||
       !turno.paciente ||
-      !turno.sede ||
       (typeof turno.medico === "string" && turno.medico.length < 24) ||
       (typeof turno.paciente === "string" && turno.paciente.length < 24)
     ) {
@@ -90,18 +90,22 @@ module.exports = class GestorTurnos {
     }
   }
 
-  buscarTurnosPorPaciente(idPaciente) {
+  async buscarTurnosPorPaciente(idPaciente) {
     if(typeof idPaciente === "string" && idPaciente.length < 24){
       return false;
     }
-    return this.repositoryTurnos.findByIdPaciente(idPaciente);
+    let turnosPaciente = await this.repositoryTurnos.findByIdPaciente(idPaciente);
+
+     return turnosPaciente
+  
   }
 
-  buscarTurnosPorMedico(idMedico) {
+  async buscarTurnosPorMedico(idMedico) {
     if(typeof idMedico === "string" && idMedico.length < 24){
       return false;
     }
-    return this.repositoryTurnos.findByIdMedico(medico);
+    let turnosMedico = await this.repositoryTurnos.findByIdMedico(idMedico);
+    return turnosMedico
   }
 
   buscarTurnoPorId(id) {
@@ -110,4 +114,14 @@ module.exports = class GestorTurnos {
     }
     return this.repositoryTurnos.findById(id);
   }
-};
+
+  async verTurnos(){
+    return await this.repositoryTurnos.findAll();
+  }
+
+  async verDisponibilidadHoraria(idMedico,fecha){
+    console.log(idMedico,fecha)
+    return await this.repositoryTurnos.buscarAgenda(idMedico,fecha)
+  }
+
+ };

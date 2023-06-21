@@ -7,9 +7,11 @@ module.exports = class MedicoService {
 
 
     async crearMedico(medico) {
-        if (medico.nombre && medico.apellido && medico.dni && medico.email) {
-            let nuevoMedico = new Medico(medico.dni, medico.nombre, medico.apellido, medico.email);
+        
+        if (medico.nombre && medico.apellido && medico.dni && medico.email && medico.especialidad && medico.matricula && medico.password) {
+            let nuevoMedico = new Medico(medico.dni, medico.nombre, medico.apellido, medico.email, medico.especialidad,medico.matricula,medico.password);
             repoMedico.agregarMedico(nuevoMedico);
+           
             return true;
         }
         return false;
@@ -48,5 +50,10 @@ module.exports = class MedicoService {
     async login(email, password){
         let buscado = await repoMedico.login(email, password)
         return buscado;
+    }
+
+    async buscarEspecialidad(especialidad) {
+        let especialistas = await repoMedico.buscarPorEspecialidad(especialidad)
+        return especialistas
     }
 }

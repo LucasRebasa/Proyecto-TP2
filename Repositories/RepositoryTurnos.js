@@ -43,21 +43,21 @@ module.exports = class RepositoryTurnos {
     }
   }
 
-  async findByIdPaciente(paciente) {
+  async findByIdPaciente(idPaciente) {
     try {
       await dao.connect();
       let collection = await dao.db("TP2").collection("Turno");
-      return await collection.find({ paciente: new ObjectId(paciente) }).toArray();
+      return await collection.find({ paciente: idPaciente }).toArray();
     } finally {
       await dao.close();
     }
   }
 
-  async findByIdMedico(medico) {
+  async findByIdMedico(idMedico) {
     try {
       await dao.connect();
       let collection = await dao.db("TP2").collection("Turno");
-      return await collection.find({ medico: new ObjectId(medico) }).toArray();
+      return await collection.find({ medico: idMedico }).toArray();
     } finally {
       await dao.close();
     }
@@ -97,5 +97,29 @@ module.exports = class RepositoryTurnos {
       await dao.close();
     }
   }
+
+  async findAll() {
+    try {
+      await dao.connect();
+      // Obtención de la base de datos y la colección
+      const collection = dao.db("TP2").collection("Turno");
+      return await collection.find().toArray();
+    } finally {
+      await dao.close();
+    }
+  }
+
+  async buscarAgenda(idMedico, fecha) {
+    try {
+      await dao.connect();
+      // Busqueda en la base de datos y la colección turnos, para corroborar que ese medico no tenga un turno asignado en esa fecha y hora
+      const listado = dao.db("TP2");
+      const collection = listado.collection("Turno");
+      return await collection.find({medico:idMedico,fecha:fecha}).toArray();
+    } finally {
+      await dao.close();
+    }
+  }
+  
   
 };

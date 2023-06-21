@@ -16,6 +16,7 @@ module.exports = class RepositoryMedico {
   }
 
   async agregarMedico(medico) {
+    
     try {
       await dao.connect();
       let collection = await dao.db("TP2").collection("Medico");
@@ -78,4 +79,18 @@ module.exports = class RepositoryMedico {
       await dao.close();
     }
   }
-};
+
+  async buscarPorEspecialidad(especialidad){
+    
+    try {
+       // Busqueda en la base de datos y la colección medicos, los medicos con esa especialidad
+      await dao.connect();
+      let collection = await dao.db("TP2").collection("Medico");
+      return await collection.find({ especialidad: especialidad}).toArray();
+    } finally {
+      await dao.close();
+    }
+  }
+
+  
+}

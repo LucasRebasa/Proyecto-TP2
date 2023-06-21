@@ -35,10 +35,6 @@ La aplicación de “una obra social” permitirá gestionar turnos, solicitando
 ### Turno
 - Una de las clases mas importantes. Sera la clase que servira de vinculo entre Los medicos y los pacientes y contendra varias funcionalidades que responden a las reglas de negocio(creacion, pos).
 
-### Estudio
--Va a contener la fecha del mismo, la especialidad del medico y el medico que atiende el mismo.
-Tambien va a contar con los datos del paciente y la sede a donde debe concurrir para ser atendido.
-
 
 ## Conclusión
 
