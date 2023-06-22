@@ -1,4 +1,4 @@
-const Turno = require("../Turno.js");
+const Turno = require("../Entities/Turno.js");
 
 module.exports = class GestorTurnos {
   constructor(repositoryTurnos, repositoryMedico, repositoryPaciente) {
@@ -75,7 +75,12 @@ module.exports = class GestorTurnos {
     if (!turno || !fechaNueva || !horaNueva) {
       return {error: "Los datos ingresados son incorrectos"};
     }
-    let actualizado;
+    //Valida que el medico tenga disponibilidad en el nuevo horario
+    let noDisponible = await this.repositoryTurnos.findTurnoByMedicoFechaYHora(turno.medico,fechaNueva,horaNueva);
+    if(noDisponible){
+      console.log(noDisponible)
+      return {error:"El medico no esta disponible en el nuevo horario"}
+    }
     //Valida que el turno sea modificado al menos dos dias antes
     if (
       new Date(turno.fecha).getTime() - fechaActual.getTime() >= 172800000 &&
@@ -92,20 +97,25 @@ module.exports = class GestorTurnos {
 
   async buscarTurnosPorPaciente(idPaciente) {
     if(typeof idPaciente === "string" && idPaciente.length < 24){
-      return false;
+      return {error:"No existe un paciente con ese id"};
     }
     let turnosPaciente = await this.repositoryTurnos.findByIdPaciente(idPaciente);
 
-     return turnosPaciente
-  
+    if(turnosPaciente.length === 0){
+      return {error:"No hay turnos para ese paciente"}
+    }
+    return turnosPaciente;
   }
 
   async buscarTurnosPorMedico(idMedico) {
     if(typeof idMedico === "string" && idMedico.length < 24){
-      return false;
+      return {error:"No existe el medico"};
     }
     let turnosMedico = await this.repositoryTurnos.findByIdMedico(idMedico);
-    return turnosMedico
+    if(turnosMedico.length === 0){
+      return {error:"No existen turnos para el medico ingresado"}
+    }
+    return turnosMedico;
   }
 
   buscarTurnoPorId(id) {
@@ -116,12 +126,20 @@ module.exports = class GestorTurnos {
   }
 
   async verTurnos(){
-    return await this.repositoryTurnos.findAll();
+    let turnos = await this.repositoryTurnos.findAll();
+    if(turnos.length === 0){
+      return {error:"No existen turnos"}
+    }
+    return turnos;
   }
 
   async verDisponibilidadHoraria(idMedico,fecha){
-    console.log(idMedico,fecha)
-    return await this.repositoryTurnos.buscarAgenda(idMedico,fecha)
+    let medico = await this.repositoryMedico.findById(idMedico);
+    if(!medico){
+      return {error:"El medico no existe"}
+    }
+    let disponibilidad = await this.repositoryTurnos.buscarAgenda(idMedico,fecha)
+    return disponibilidad;
   }
 
  };

@@ -34,8 +34,8 @@ app.post("/medico/login", async (request, response) => {
 
   const data = await medicoService.login(email, password);
   console.log(data);
-  if(!data){
-    response.status(400).send()
+  if(data.error){
+    response.status(404).send({error:data.error})
   }else{
     response.status(200).json(data);
   }
@@ -47,8 +47,8 @@ app.post("/medico", async (request, response) => {
   console.log(body)
   const data = await medicoService.crearMedico(body);
 
-  if (!data) {
-    response.sendStatus(400);
+  if (data.error) {
+    response.status(400).send({error:data.error});
   } else {
     response.sendStatus(201);
   }
@@ -76,12 +76,11 @@ app.get("/medico/:id", async (request, response) => {
 
 app.delete("/medico/:id", async (request, response) => {
   const id = request.params.id;
-
   const deleted = await medicoService.eliminarPorId(id);
   if (deleted.error) {
     response.status(404).send({error:deleted.error});
   } else {
-    response.sendStatus(200);
+    response.sendStatus(204);
   }
 });
 
@@ -99,8 +98,8 @@ app.put("/medico/:id", async (request, response) => {
 app.post("/medico/especialidad", async (request,response) => {
   const { especialidad } = request.body;
   const data = await medicoService.buscarEspecialidad(especialidad);
-  if(!data){
-    response.status(404).send();
+  if(data.error){
+    response.status(404).send({error:data.error});
   }else{
     response.status(200).json(data);
    
@@ -115,8 +114,8 @@ app.post("/paciente/login", async (request, response) => {
 
   const data = await pacienteService.login(email, password);
   console.log(data);
-  if(!data){
-    response.status(400).send()
+  if(data.error){
+    response.status(404).send({error:data.error})
   }else{
     response.status(200).json(data);
   }
@@ -169,9 +168,9 @@ app.delete("/paciente/:id", async (request, response) => {
 
   const deleted = await pacienteService.eliminarPorId(id);
   if (!deleted || deleted.error) {
-    response.status(400).send({error:deleted.error});
+    response.status(404).send({error:deleted.error});
   } else {
-    response.sendStatus(200);
+    response.sendStatus(204);
   }
 });
 
@@ -180,8 +179,8 @@ app.get("/turno/paciente/:idPaciente", async (request,response) => {
   const idPaciente = request.params.idPaciente;
 
   const data = await gestorTurnos.buscarTurnosPorPaciente(idPaciente);
-  if(!data){
-    response.status(404).send({error:"No existen turnos para ese paciente"});
+  if(data.error){
+    response.status(404).send({error:data.error});
   }else{
     response.status(200).json(data);
   }
@@ -190,8 +189,8 @@ app.get("/turno/paciente/:idPaciente", async (request,response) => {
 app.get("/turno", async (request,response) => {
  
   const data = await gestorTurnos.verTurnos();
-  if(!data){
-    response.status(404).send();
+  if(data.error){
+    response.status(404).send({error:data.error});
   }else{
     response.status(200).json(data);
   }
@@ -202,9 +201,9 @@ app.post("/turno", async (request, response) => {
   const { body } = request;
   let data = await gestorTurnos.agregarTurno(body);
   if (data.error) {
-    response.status(400).send({error:data.error});
+    response.status(412).send({error:data.error});
   } else {
-    response.sendStatus(200);
+    response.sendStatus(201);
   }
 });
 
@@ -227,7 +226,7 @@ app.delete("/turno/:id", async (request, response) => {
   if(deleted.error){
     response.status(404).send({error:deleted.error});
   }else{
-    response.sendStatus(200);
+    response.sendStatus(204);
   }
 })
 
@@ -235,8 +234,8 @@ app.get("/turno/medico/:idMedico", async (request,response) => {
   const idMedico = request.params.idMedico;
 
   const data = await gestorTurnos.buscarTurnosPorMedico(idMedico);
-  if(!data){
-    response.status(404).send({error:"No existen turnos para ese medico"});
+  if(data.error){
+    response.status(404).send({error:data.error});
   }else{
     response.status(200).json(data);
   }

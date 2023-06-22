@@ -1,11 +1,15 @@
 const RepositoryPaciente = require("../Repositories/RepositoryPaciente.js");
 
-
 const repoPaciente = new RepositoryPaciente()
 
 module.exports = class PacienteService {
 
     async crearPaciente(paciente){
+        let existe = await repoPaciente.existByEmail(paciente.email);
+        if(existe){
+            return {error:"Ya existe un usuario con esas credenciales"};
+        }
+
         if(!paciente.nombre || !paciente.apellido || !paciente.dni || !paciente.email || !paciente.password){
             return {error:"Los datos ingresados son incorrectos"};
         }
@@ -25,8 +29,7 @@ module.exports = class PacienteService {
         if (!pacienteBuscado){
             return {error:"El paciente buscado no existe"}
         }
-        
-        return pacienteBuscado
+         return pacienteBuscado
     }
 
     async eliminarPorId(id){
@@ -39,9 +42,10 @@ module.exports = class PacienteService {
     }
 
     async update(idPaciente, nuevoPaciente){
+        let existe = await repoPaciente.existByEmail(nuevoPaciente.email);
         let pacienteActualizar = await repoPaciente.existsById(idPaciente);
         
-        if(!pacienteActualizar || !nuevoPaciente.nombre || !nuevoPaciente.apellido || !nuevoPaciente.dni || !nuevoPaciente.edad || !nuevoPaciente.email){
+        if((existe && existe?._id.toString()!==idPaciente) || !pacienteActualizar || !nuevoPaciente.nombre || !nuevoPaciente.apellido || !nuevoPaciente.dni || !nuevoPaciente.email || !nuevoPaciente.password){
             return {error:"Los datos ingresados son incorrectos"};
         }
         let actualizado = await repoPaciente.update(idPaciente, nuevoPaciente)
@@ -51,6 +55,9 @@ module.exports = class PacienteService {
 
     async login(email, password){
         let buscado = await repoPaciente.login(email, password)
+        if(!buscado){
+            return {error:"El usuario no esta registrado"}
+        }
         return buscado;
     }
     

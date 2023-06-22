@@ -91,6 +91,14 @@ module.exports = class RepositoryMedico {
       await dao.close();
     }
   }
-
+  async existByEmail(email){
+    try {
+      await dao.connect();
+      let collection = await dao.db("TP2").collection("Medico");
+      return await collection.findOne({ email: email });
+    } finally {
+      await dao.close();
+    }
+  }
   
 }

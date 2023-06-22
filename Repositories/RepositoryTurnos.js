@@ -1,6 +1,6 @@
 const { ObjectId } = require("mongodb");
 const dao = require("../MongoDBDao/MongoDBDao.js");
-const Turno = require("../Turno.js");
+const Turno = require("../Entities/Turno.js");
 
 module.exports = class RepositoryTurnos {
   
