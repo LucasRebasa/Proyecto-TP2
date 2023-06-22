@@ -1,13 +1,12 @@
 ## Introducción
-La aplicación de “una obra social” permitirá gestionar turnos, solicitando, reprogramando o cancelando los mismos, ver todo el historial médico (estudios, vacunas, cirugías, etc) del usuario de manera centralizada, pagar bonos o costos extras y ver o cambiar el plan médico actual.
+La aplicación de “una obra social” permitirá gestionar turnos, solicitando, reprogramando o cancelando los mismos del usuario de manera centralizada.
 
 ## Requerimientos del sistema
 ### Funcionales:
 - Permitir al usuario solicitar, modificar o cancelar turnos
 - Filtrar los turnos por fecha o cercanía al establecimiento donde se realiza la consulta
-- Permitir al usuario ver el historial médico
-- Consultar el plan médico actual y permitir modificarlo
 - Generar un QR/token como método de validación para la asistencia a los turnos de manera presencial
+  
 ### No funcionales:
 - La aplicación debe ser intuitiva y fácil de utilizar.
 - La aplicación debe poder gestionarse de manera independiente y debe generar una respuesta automática la mayor parte del tiempo, es decir sin esperar una validación por parte de otra persona.
@@ -25,9 +24,9 @@ La aplicación de “una obra social” permitirá gestionar turnos, solicitando
 
 ## Relación entre Clases
 ### Paciente
-- El paciente contara con sus datos personales (dni, nombre, apellido, edad, email) y con sus respectivos estudios, turnos asignados. 
+- El paciente contara con sus datos personales (dni, nombre, apellido, email) y con sus  turnos asignados. 
 ### Medico
-- La clase Medico tendra dni,nombre,apellido,email. A su vez, contara con un listado semanal de turnos (al estilo agenda). La idea de contar con dni y email tiene como un sentido netamente funcional, seran usados para futuros logins, asignacion de perfil, etc.
+- La clase Medico tendra dni,nombre,apellido,matricula, especialidad y email. A su vez, contara con un listado semanal de turnos (al estilo agenda). La idea de contar con dni y email tiene como un sentido netamente funcional, seran usados para futuros logins, asignacion de perfil, etc.
 ### GestorTurnos
 - El gestor de turnos se va encargar de crear, actualizar, eliminar y buscar los turnos que haya solicitado cada paciente o que se haya asignado a un medico. Permite la busqueda por paciente o medico.
 ### Turno
